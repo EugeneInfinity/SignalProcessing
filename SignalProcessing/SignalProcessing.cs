@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Numerics;
 
 namespace SignalProcessing
 {
@@ -22,6 +23,13 @@ namespace SignalProcessing
 
             for (int i = 0; i < signal.Length; ++i)
                 signal[i] = (int)(Math.Sin(Math.PI * 2 * i * 1000 / 44100) * 100);
+
+            Complex [] inData = new Complex[512];
+            for (int i = 0; i < inData.Length; ++i)
+                inData[i] = new Complex(signal[i], 0);
+            FFT(inData, false);
+            FFT(inData, true);
+
         }
 
         private void OnPaint(object sender, PaintEventArgs e)
@@ -69,6 +77,61 @@ namespace SignalProcessing
         private void OnValueChanged(object sender, EventArgs e)
         {
             Invalidate();
+        }
+
+        private void FFT(Complex [] a, bool invert) 
+        {
+            if (a.Length == 1)
+                return;
+
+            Complex [] a0 =  new Complex[a.Length / 2], a1 = new Complex[a.Length / 2];
+
+            for (int i = 0, j = 0; i < a.Length; i += 2, ++j)
+            { 
+                a0[j] = a[i];
+                a1[j] = a[i + 1];
+            }
+
+            FFT(a0, invert);
+            FFT(a1, invert);
+
+            double ang = 2 * Math.PI / a.Length * (invert? -1 : 1);
+            Complex w = new Complex(1, 0),  wn = new Complex(Math.Cos(ang), Math.Sin(ang));
+            for (int i = 0; i < a.Length / 2; ++i) 
+            {
+                a[i] = a0[i] + w * a1[i];
+                a[i + a.Length / 2] = a0[i] - w * a1[i];
+                if (invert)
+                {
+                    a[i] /= 2;
+                    a[i + a.Length / 2] /= 2;
+                }
+                w *= wn;
+            }
+
+        /*
+         * void fft (vector<base> & a, bool invert) {
+            int n = (int) a.size();
+            if (n == 1)  return;
+
+            vector<base> a0 (n/2),  a1 (n/2);
+            for (int i=0, j=0; i<n; i+=2, ++j) {
+                a0[j] = a[i];
+                a1[j] = a[i+1];
+            }
+            fft (a0, invert);
+            fft (a1, invert);
+
+            double ang = 2*PI/n * (invert ? -1 : 1);
+            base w (1),  wn (cos(ang), sin(ang));
+            for (int i=0; i<n/2; ++i) {
+                a[i] = a0[i] + w * a1[i];
+                a[i+n/2] = a0[i] - w * a1[i];
+                if (invert)
+                    a[i] /= 2,  a[i+n/2] /= 2;
+                w *= wn;
+            }
+         */
         }
     }
 }
