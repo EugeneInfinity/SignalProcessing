@@ -33,6 +33,8 @@ namespace SignalProcessing
                 signal[0][i] = (int)(Math.Sin(Math.PI * 2 * i * 1000 / 44100) * 5000 + Math.Sin(Math.PI * 2 * i * 5000 / 44100) * 5000);
 
             Complex[] inData = new Complex[512];
+            int index = 5000 * 256 / 22050;
+
             for (int i = 0; i < signal[0].Length; i += inData.Length)
             {
                 for (int j = 0; j < inData.Length; ++j)
@@ -41,8 +43,12 @@ namespace SignalProcessing
                     else
                         inData[j] = new Complex(0, 0);
                 FFT(inData, false);
-                inData[58] = new Complex(0, 0);
-                inData[454] = new Complex(0, 0);
+
+                for (int k = Math.Max(index - 1, 0); k < Math.Min(index + 1, 256); ++k)
+                {
+                    inData[k] = new Complex(0, 0);
+                    inData[512 - k] = new Complex(0, 0);
+                }
                 FFT(inData, true);
                 for (int j = 0; j < inData.Length; ++j)
                     if (i + j < signal[1].Length)
