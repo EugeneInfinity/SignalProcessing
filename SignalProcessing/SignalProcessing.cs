@@ -19,16 +19,35 @@ namespace SignalProcessing
 
             ResizeRedraw = true;
 
-            signal = new int[44100];
+            CreateData();
+        }
 
+        private void CreateData()
+        {
+            signal = new int[2][];
             for (int i = 0; i < signal.Length; ++i)
-                signal[i] = (int)(Math.Sin(Math.PI * 2 * i * 1000 / 44100) * 100);
+                signal[i] = new int[44100];
+            
 
-            Complex [] inData = new Complex[512];
-            for (int i = 0; i < inData.Length; ++i)
-                inData[i] = new Complex(signal[i], 0);
-            FFT(inData, false);
-            FFT(inData, true);
+            for (int i = 0; i < signal[0].Length; ++i)
+                signal[0][i] = (int)(Math.Sin(Math.PI * 2 * i * 1000 / 44100) * 5000 + Math.Sin(Math.PI * 2 * i * 5000 / 44100) * 5000);
+
+            Complex[] inData = new Complex[512];
+            for (int i = 0; i < signal[0].Length; i += inData.Length)
+            {
+                for (int j = 0; j < inData.Length; ++j)
+                    if (i + j < signal[0].Length)
+                        inData[j] = new Complex(signal[0][i + j], 0);
+                    else
+                        inData[j] = new Complex(0, 0);
+                FFT(inData, false);
+                inData[58] = new Complex(0, 0);
+                inData[454] = new Complex(0, 0);
+                FFT(inData, true);
+                for (int j = 0; j < inData.Length; ++j)
+                    if (i + j < signal[1].Length)
+                        signal[1][i + j] = (int)(inData[j].Real);
+            }
 
         }
 
@@ -55,24 +74,27 @@ namespace SignalProcessing
             }
 
 
-            Point from = new Point(rectangles[0].X, rectangles[0].Y + rectangles[0].Height / 2);
-            from.Offset(0, -(signal[hScrollBar.Value] * rectangles[0].Height / 2 / 100));
-            Point to = new Point(0, 0);
-            for (int i = 1; i < rectangles[0].Width; ++i)
-            { 
-                to.X = i;
-                to.Y = - (signal[hScrollBar.Value + i] * rectangles[0].Height / 2 / 100);
-                to.Offset(rectangles[0].X, rectangles[0].Y + rectangles[0].Height / 2);
-                g.DrawLine(blackPen, from, to);
-                from.X = to.X;
-                from.Y = to.Y;
+            for (int i = 0; i < signal.Length; i++)
+            {
+                Point from = new Point(rectangles[i].X, rectangles[i].Y + rectangles[i].Height / 2);
+                from.Offset(0, -(signal[i][hScrollBar.Value] * rectangles[i].Height / 2 / 10000));
+                Point to = new Point(0, 0);
+                for (int j = 1; j < rectangles[i].Width; ++j)
+                {
+                    to.X = j;
+                    to.Y = -(signal[i][hScrollBar.Value + j] * rectangles[0].Height / 2 / 10000);
+                    to.Offset(rectangles[i].X, rectangles[i].Y + rectangles[0].Height / 2);
+                    g.DrawLine(blackPen, from, to);
+                    from.X = to.X;
+                    from.Y = to.Y;
+                }
             }
 
             g.Dispose();
                 
         }
 
-        private int [] signal;
+        private int[][] signal;
 
         private void OnValueChanged(object sender, EventArgs e)
         {
@@ -108,30 +130,6 @@ namespace SignalProcessing
                 }
                 w *= wn;
             }
-
-        /*
-         * void fft (vector<base> & a, bool invert) {
-            int n = (int) a.size();
-            if (n == 1)  return;
-
-            vector<base> a0 (n/2),  a1 (n/2);
-            for (int i=0, j=0; i<n; i+=2, ++j) {
-                a0[j] = a[i];
-                a1[j] = a[i+1];
-            }
-            fft (a0, invert);
-            fft (a1, invert);
-
-            double ang = 2*PI/n * (invert ? -1 : 1);
-            base w (1),  wn (cos(ang), sin(ang));
-            for (int i=0; i<n/2; ++i) {
-                a[i] = a0[i] + w * a1[i];
-                a[i+n/2] = a0[i] - w * a1[i];
-                if (invert)
-                    a[i] /= 2,  a[i+n/2] /= 2;
-                w *= wn;
-            }
-         */
         }
     }
 }
