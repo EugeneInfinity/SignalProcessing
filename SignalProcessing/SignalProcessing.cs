@@ -53,7 +53,7 @@ namespace SignalProcessing
 
         private void OnPaint(object sender, PaintEventArgs e)
         {
-            Rectangle[] rectangles = new Rectangle[2];
+            Rectangle[] rectangles = new Rectangle[signal.Length];
 
             for (int i = 0; i < rectangles.Length; ++i)
             {
