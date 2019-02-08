@@ -19,18 +19,18 @@ namespace SignalProcessing
 
             ResizeRedraw = true;
 
-            CreateData();
+            CreateData(1000, 5000);
         }
 
-        private void CreateData()
+        private void CreateData(int freq1, int freq2)
         {
-            signal = new int[2][];
+            signal = new int[3][];
             for (int i = 0; i < signal.Length; ++i)
                 signal[i] = new int[44100];
             
 
             for (int i = 0; i < signal[0].Length; ++i)
-                signal[0][i] = (int)(Math.Sin(Math.PI * 2 * i * 1000 / 44100) * 5000 + Math.Sin(Math.PI * 2 * i * 5000 / 44100) * 5000);
+                signal[0][i] = (int)(Math.Sin(Math.PI * 2 * i * freq1 / 44100) * 5000 + Math.Sin(Math.PI * 2 * i * freq2 / 44100) * 5000);
 
             Complex[] inData = new Complex[512];
             int index = 5000 * 256 / 22050;
@@ -54,6 +54,25 @@ namespace SignalProcessing
                     if (i + j < signal[1].Length)
                         signal[1][i + j] = (int)(inData[j].Real);
             }
+
+            double w = Math.Tan(Math.PI * (freq2 + freq1) / 2 / 44100);
+
+            double a0 = 1 + Math.Sqrt(2) * w + w * w;
+            double a1 = -2 + 2 * w * w;
+            double a2 = 1 - Math.Sqrt(2) * w + w * w;
+
+            double b0 = w * w;
+            double b1 = 2 * w * w;
+            double b2 = w * w;
+
+            b0 /= a0;
+            b1 /= a0;
+            b2 /= a0;
+            a1 /= a0;
+            a2 /= a0;
+
+            for (int i = 2; i < signal[0].Length; ++i)
+                signal[2][i] = (int)(b0 * signal[0][i] + b1 * signal[0][i - 1] + b2 * signal[0][i - 2] - a1 * signal[2][i - 1] - a2 * signal[2][i - 2]);
 
         }
 
