@@ -33,7 +33,7 @@ namespace SignalProcessing
                 signal[0][i] = (int)(Math.Sin(Math.PI * 2 * i * freq1 / 44100) * 5000 + Math.Sin(Math.PI * 2 * i * freq2 / 44100) * 5000);
 
             Complex[] inData = new Complex[512];
-            int index = 5000 * 256 / 22050;
+            int index = freq2 * 256 / 22050;
 
             for (int i = 0; i < signal[0].Length; i += inData.Length)
             {
@@ -83,9 +83,9 @@ namespace SignalProcessing
             for (int i = 0; i < rectangles.Length; ++i)
             {
                 rectangles[i].X = ClientRectangle.X + 10;
-                rectangles[i].Y = ClientRectangle.Y + (ClientRectangle.Height - hScrollBar.Size.Height) * i / rectangles.Length + 10;
+                rectangles[i].Y = ClientRectangle.Y + (ClientRectangle.Height - hScrollBar.Size.Height - frequency_1.Size.Height) * i / rectangles.Length + 10 + frequency_1.Size.Height;
                 rectangles[i].Width = ClientRectangle.Width - 20;
-                rectangles[i].Height = (ClientRectangle.Height - hScrollBar.Size.Height) / rectangles.Length - 20;
+                rectangles[i].Height = (ClientRectangle.Height - hScrollBar.Size.Height - frequency_1.Size.Height) / rectangles.Length - 20;
             }
 
             Graphics g = CreateGraphics();
@@ -154,6 +154,24 @@ namespace SignalProcessing
                     a[i + a.Length / 2] /= 2;
                 }
                 w *= wn;
+            }
+        }
+
+        private void OnFreq1(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {
+                CreateData(Convert.ToInt32(frequency_1.Text), Convert.ToInt32(frequency_2.Text));
+                Invalidate();
+            }
+        }
+
+        private void OnFreq2(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {
+                CreateData(Convert.ToInt32(frequency_1.Text), Convert.ToInt32(frequency_2.Text));
+                Invalidate();
             }
         }
     }
