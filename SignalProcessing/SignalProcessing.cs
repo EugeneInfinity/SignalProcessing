@@ -27,21 +27,25 @@ namespace SignalProcessing
             signal = new int[3][];
             for (int i = 0; i < signal.Length; ++i)
                 signal[i] = new int[44100];
-            
 
             for (int i = 0; i < signal[0].Length; ++i)
                 signal[0][i] = (int)(Math.Sin(Math.PI * 2 * i * freq1 / 44100) * 5000 + Math.Sin(Math.PI * 2 * i * freq2 / 44100) * 5000);
 
-            Complex[] inData = new Complex[512];
-            int index = freq2 * 256 / 22050;
+            Complex[] inData = new Complex[N];
+            int index = freq2 * (N / 2) / 22050;
 
-            for (int i = 0; i < signal[0].Length; i += inData.Length)
+            double[] HannWindow = new double[N];
+            for (int i = 0; i < HannWindow.Length; ++i)
+                HannWindow[i] = 1 - Math.Cos(Math.PI * 2 * i / N);
+
+            for (int i = 0; i < signal[0].Length; i += (inData.Length / 2))
             {
                 for (int j = 0; j < inData.Length; ++j)
                     if (i + j < signal[0].Length)
                         inData[j] = new Complex(signal[0][i + j], 0);
                     else
                         inData[j] = new Complex(0, 0);
+
                 FFT(inData, false);
 
                 for (int k = Math.Max(index - 1, 0); k < Math.Min(index + 1, 256); ++k)
@@ -49,10 +53,12 @@ namespace SignalProcessing
                     inData[k] = new Complex(0, 0);
                     inData[512 - k] = new Complex(0, 0);
                 }
+
                 FFT(inData, true);
+
                 for (int j = 0; j < inData.Length; ++j)
                     if (i + j < signal[1].Length)
-                        signal[1][i + j] = (int)(inData[j].Real);
+                        signal[1][i + j] += (int)(inData[j].Real * HannWindow[j]);
             }
 
             double w = Math.Tan(Math.PI * (freq2 + freq1) / 2 / 44100);
@@ -174,5 +180,7 @@ namespace SignalProcessing
                 Invalidate();
             }
         }
+
+        private const int N = 512;
     }
 }
