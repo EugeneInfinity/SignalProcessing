@@ -31,6 +31,10 @@
             this.hScrollBar = new System.Windows.Forms.HScrollBar();
             this.frequency_1 = new System.Windows.Forms.TextBox();
             this.frequency_2 = new System.Windows.Forms.TextBox();
+            this.zeroes = new System.Windows.Forms.TextBox();
+            this.timeFFT = new System.Windows.Forms.TextBox();
+            this.timeFilter = new System.Windows.Forms.TextBox();
+            this.windowLength = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // hScrollBar
@@ -62,11 +66,47 @@
             this.frequency_2.Text = "5000";
             this.frequency_2.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnFreq2);
             // 
+            // zeroes
+            // 
+            this.zeroes.Location = new System.Drawing.Point(155, 1);
+            this.zeroes.Name = "zeroes";
+            this.zeroes.Size = new System.Drawing.Size(29, 20);
+            this.zeroes.TabIndex = 3;
+            this.zeroes.Text = "2";
+            this.zeroes.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnZeroes);
+            // 
+            // timeFFT
+            // 
+            this.timeFFT.Location = new System.Drawing.Point(190, 1);
+            this.timeFFT.Name = "timeFFT";
+            this.timeFFT.Size = new System.Drawing.Size(65, 20);
+            this.timeFFT.TabIndex = 4;
+            // 
+            // timeFilter
+            // 
+            this.timeFilter.Location = new System.Drawing.Point(261, 1);
+            this.timeFilter.Name = "timeFilter";
+            this.timeFilter.Size = new System.Drawing.Size(65, 20);
+            this.timeFilter.TabIndex = 4;
+            // 
+            // windowLength
+            // 
+            this.windowLength.Location = new System.Drawing.Point(104, 1);
+            this.windowLength.Name = "windowLength";
+            this.windowLength.Size = new System.Drawing.Size(45, 20);
+            this.windowLength.TabIndex = 5;
+            this.windowLength.Text = "512";
+            this.windowLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnWindowLength);
+            // 
             // SignalProcessing
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(600, 366);
+            this.Controls.Add(this.windowLength);
+            this.Controls.Add(this.timeFilter);
+            this.Controls.Add(this.timeFFT);
+            this.Controls.Add(this.zeroes);
             this.Controls.Add(this.frequency_2);
             this.Controls.Add(this.frequency_1);
             this.Controls.Add(this.hScrollBar);
@@ -84,6 +124,10 @@
         private System.Windows.Forms.HScrollBar hScrollBar;
         private System.Windows.Forms.TextBox frequency_1;
         private System.Windows.Forms.TextBox frequency_2;
+        private System.Windows.Forms.TextBox zeroes;
+        private System.Windows.Forms.TextBox timeFFT;
+        private System.Windows.Forms.TextBox timeFilter;
+        private System.Windows.Forms.TextBox windowLength;
     }
 }
 
