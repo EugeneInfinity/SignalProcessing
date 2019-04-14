@@ -185,6 +185,15 @@ namespace SignalProcessing
 
         private void Recompute()
         {
+            int len = Convert.ToInt32(windowLength.Text), ones = 0;
+            for (; len != 0; ++ones)
+                len &= (len - 1);
+            if (ones != 1)
+            {
+                MessageBox.Show("Window length is not power of 2", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             CreateData(Convert.ToInt32(frequency_1.Text), Convert.ToInt32(frequency_2.Text), Convert.ToInt32(windowLength.Text), Convert.ToInt32(zeroes.Text));
             Invalidate();
         }
