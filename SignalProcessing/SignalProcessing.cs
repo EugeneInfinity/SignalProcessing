@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Numerics;
 using System.Diagnostics;
+using System.Collections;
 
 namespace SignalProcessing
 {
@@ -140,6 +141,8 @@ namespace SignalProcessing
             Invalidate();
         }
 
+        Dictionary<int, double> fft_sin = new Dictionary<int, double>(), fft_cos = new Dictionary<int, double>();
+
         private void FFT(Complex [] a, bool invert) 
         {
             if (a.Length == 1)
@@ -157,7 +160,12 @@ namespace SignalProcessing
             FFT(a1, invert);
 
             double ang = 2 * Math.PI / a.Length * (invert? -1 : 1);
-            Complex w = new Complex(1, 0),  wn = new Complex(Math.Cos(ang), Math.Sin(ang));
+            int hash_key = a.Length * (invert ? -1 : 1);
+            if (!fft_sin.ContainsKey(hash_key))
+                fft_sin.Add(hash_key, Math.Sin(ang));
+            if (!fft_cos.ContainsKey(hash_key))
+                fft_cos.Add(hash_key, Math.Cos(ang));
+            Complex w = new Complex(1, 0),  wn = new Complex(fft_cos[hash_key], fft_sin[hash_key]);
             for (int i = 0; i < a.Length / 2; ++i) 
             {
                 a[i] = a0[i] + w * a1[i];
