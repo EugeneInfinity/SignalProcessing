@@ -40,6 +40,18 @@ namespace SignalProcessing
             for (int i = 0; i < HannWindow.Length; ++i)
                 HannWindow[i] = 1 - Math.Cos(Math.PI * 2 * i / N);
 
+            fft_sin = new Dictionary<int, double>();
+            fft_cos = new Dictionary<int, double>();
+
+            for (int l = N; l >= 2; l >>= 1)
+            { 
+                double ang = 2 * Math.PI / l;
+                fft_sin.Add(l, Math.Sin(ang));
+                fft_sin.Add(-l, Math.Sin(-ang));
+                fft_cos.Add(l, Math.Cos(ang));
+                fft_cos.Add(-l, Math.Cos(-ang));
+            }
+
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
             for (int i = 0; i < signal[0].Length; i += (inData.Length / 2))
@@ -141,7 +153,7 @@ namespace SignalProcessing
             Invalidate();
         }
 
-        Dictionary<int, double> fft_sin = new Dictionary<int, double>(), fft_cos = new Dictionary<int, double>();
+        Dictionary<int, double> fft_sin, fft_cos;
 
         private void FFT(Complex [] a, bool invert) 
         {
@@ -159,12 +171,7 @@ namespace SignalProcessing
             FFT(a0, invert);
             FFT(a1, invert);
 
-            double ang = 2 * Math.PI / a.Length * (invert? -1 : 1);
             int hash_key = a.Length * (invert ? -1 : 1);
-            if (!fft_sin.ContainsKey(hash_key))
-                fft_sin.Add(hash_key, Math.Sin(ang));
-            if (!fft_cos.ContainsKey(hash_key))
-                fft_cos.Add(hash_key, Math.Cos(ang));
             Complex w = new Complex(1, 0),  wn = new Complex(fft_cos[hash_key], fft_sin[hash_key]);
             for (int i = 0; i < a.Length / 2; ++i) 
             {
